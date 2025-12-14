@@ -21,11 +21,32 @@ const LandingSection = () => {
   const {isLoading, response, submit} = useSubmit();
   const { onOpen } = useAlertContext();
 
-  const formik = useFormik({
-    initialValues: {},
-    onSubmit: (values) => {},
-    validationSchema: Yup.object({}),
+  const {values, errors, touched, getFieldProps, handleSubmit} = useFormik({
+    initialValues: {
+      firstName: "",
+      email: "",
+      type: "hireMe",
+      comment: ""
+    },
+    onSubmit: (values) => {
+      submit("", values);
+    },
+    validationSchema: Yup.object({
+      firstName: Yup.string().required("Required"),
+      email: Yup.string().email("Invalid email address").required("Required"),
+      comment: Yup.string().min(25, "Must be at least 25 characters").required("Required")
+    }),
   });
+
+  // Show an alert when the form is submitted successfully
+  useEffect(() => {
+    if (response) {
+      onOpen(response.type, response.message);
+      // Reset the form if the response is successful
+      if (response.type === "success")
+        formik.resetForm();
+    }
+  }, [response]);
 
   return (
     <FullScreenSection
